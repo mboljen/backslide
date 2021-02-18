@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Created:         Di 2020-05-05 19:31:11 CEST
-# Last Modified:   So 2020-06-28 23:00:29 CEST
+# Last Modified:   Do 2021-02-18 01:23:53 CET
 #
 # backslide:
 #   This script will change the current desktop wallpaper.
@@ -16,28 +16,32 @@ This script will change the current desktop wallpaper with
 a random selection from the given folder.
 
 OPTIONS:
-   -d 'string'  Force desktop environment [GNOME|MATE|XFCE]
-   -r           Recurse into subdirectories
-   -n           Random selection
-   -h           Show this message
+   -d TYPE  Force desktop environment [GNOME|MATE|XFCE]
+   -R       Recurse into subdirectories
+   -r       Selects a random wallpaper files
+   -l       Selects latest wallpaper file
+   -h       Show this message
 EOF
 }
 
 # Initialization
 DESKTOP=
 RND=0
+LATEST=0
 MAXDEPTH='-maxdepth 1'
 
 # Process options
-while getopts d:nrh OPTION
+while getopts d:Rrlh OPTION
 do
     case "${OPTION}"
     in
         d)  DESKTOP=${OPTARG}
             ;;
-        n)  RND=1
+        R)  MAXDEPTH=
             ;;
-        r)  MAXDEPTH=
+        r)  RND=1
+            ;;
+        l)  LATEST=1
             ;;
         h)  usage
             exit 0
@@ -50,6 +54,13 @@ done
 
 # Skip options and shift index
 shift $((OPTIND-1))
+
+#
+if [ "${RND}" -eq 1 ] && [ "${LATEST}" -eq 1 ]
+then
+    echo "Random and latest selection are mutually exclusive"
+    exit 2
+fi
 
 # Initialize list
 LIST=()
@@ -65,14 +76,14 @@ do
     fi
 
     # Search for JPG and PNG image files (bash v4.3 and earlier)
-    while IFS=  read -r -d $'\0'; do
+    while IFS=  read -r -d $'\0'
+    do
         LIST+=("$REPLY")
-    done < <( find "${dir}" "${MAXDEPTH}" -type f \( -iname \*.jpg -o \
-                                                   -iname \*.png \) -print0 )
+    done < <( find "${dir}" ${MAXDEPTH} -type f \( -iname \*.jpg -o -iname \*.png \) -print0 )
 
     # Search for JPG and PNG image files (bash v4.4 and later)
-    #readarray -d '' LIST < <( find ${dir} $MAXDEPTH -type f \( -iname \*.jpg -o \
-    #                                                           -iname \*.png \) -print0 )
+    # readarray -d '' LIST < <( find ${dir} $MAXDEPTH -type f \( -iname \*.jpg -o \
+    #                                                            -iname \*.png \) -print0 )
 
 done
 
@@ -80,10 +91,10 @@ done
 COUNT=${#LIST[@]}
 
 # Exit if there are no images
-if [[ ${COUNT} -eq 0 ]]
+if [ "${COUNT}" -eq 0 ]
 then
     echo "No images found"
-    exit 2
+    exit 3
 fi
 
 # Make selection (arg #1 is filepath to current wallpaper)
@@ -103,11 +114,25 @@ function make_selection {
     # Initialize new ID
     TRYSEL=$CURSEL
 
-    # Loop until new ID is found
-    if [ "${RND}" -eq 0 ]
+    # Check selection mode
+    if [ "${LATEST}" -eq 1 ]
     then
 
-        # Increment counter
+        # Get latest image
+        TRYTIME=0
+        for i in "${!LIST[@]}"
+        do
+            if [ $(stat -c %Y "${LIST[$i]}") -gt "${TRYTIME}" ]
+            then
+                TRYSEL=$i
+                TRYTIME=$(stat -c %Y "${LIST[$i]}")
+            fi
+        done
+
+    elif [ "${RND}" -eq 0 ]
+    then
+
+        # Proceed to next image in list
         TRYSEL=$(( TRYSEL + 1 ))
         [[ $TRYSEL -eq ${COUNT} ]] && TRYSEL=0
 
@@ -115,12 +140,14 @@ function make_selection {
     elif [ "${COUNT}" -gt 1 ]
     then
 
-        #Loop until new ID is found
+        # Loop until new ID is found
         while [ ${TRYSEL} -eq "${CURSEL}" ]
         do
             TRYSEL=$(( RANDOM % COUNT ))
         done
     fi
+
+    echo Next wallpaper = ${LIST[$TRYSEL]}
 }
 
 # Set DBUS session (arg #1 is name of desktop session)
@@ -133,45 +160,38 @@ function set_dbus_session {
 
 }
 
-# Check if variable DESKTOP is empty
-if [ -z "${DESKTOP}" ]
+# Check if option for desktop environment is defined
+if [ -z ${DESKTOP} ]
 then
 
-    # Check variable XDG_CURRENT_DESKTOP
-    if [ "${XDG_CURRENT_DESKTOP}" == 'GNOME' ]
+    # Grep known desktops
+    if [ "${XDG_CURRENT_DESKTOP}" == 'GNOME' ] || [ "${XDG_CURRENT_DESKTOP}" == 'MATE' ] || [ '${XDG_CURRENT_DESKTOP}' == 'XFCE' ]
     then
 
-        # Looks like Gnome
-        DESKTOP='GNOME'
-
-    elif [ "${XDG_CURRENT_DESKTOP}" == 'MATE' ]
-    then
-
-        # Looks like Mate
-        DESKTOP='MATE'
-
-    elif [ "${XDG_CURRENT_DESKTOP}" == 'XFCE' ]
-    then
-
-        # Looks like XFCE
-        DESKTOP='XFCE'
+        # Looks like Gnome, Unity or Cinnamon
+        DESKTOP="${XDG_CURRENT_DESKTOP}"
 
     else
 
         # Issue error message and display debugging info
         echo "Failed to automatically determine desktop environment"
         echo
-		echo "XDG_CURRENT_DESKTOP = '${XDG_CURRENT_DESKTOP}'"
+        echo "XDG_CURRENT_DESKTOP = '${XDG_CURRENT_DESKTOP}'"
         echo "DESKTOP_SERSSION = '${DESKTOP_SESSION}'"
         echo "MENU_PREFIX = '${XDG_MENU_PREFIX}'"
 
-        exit 3
+        exit 4
+
     fi
 fi
 
-# Check current desktop environment
+
+# Check variable XDG_CURRENT_DESKTOP
 if [ "${DESKTOP}" == 'GNOME' ]
 then
+
+    # Set DBUS session
+    set_dbus_session gnome-session
 
     # Fetch current wallpaper
     CURRENT=$(gsettings get org.gnome.desktop.background picture-uri)
@@ -181,14 +201,14 @@ then
     # Set new index
     make_selection "${CURRENT}"
 
-    # Set DBUS session
-    set_dbus_session gnome-session
-
     # Image loading
     gsettings set org.gnome.desktop.background picture-uri "file://${LIST[${TRYSEL}]}"
 
 elif [ "${DESKTOP}" == 'MATE' ]
 then
+
+    # Set DBUS session
+    set_dbus_session mate-session
 
     # Fetch current wallpaper
     CURRENT=$(gsettings get org.mate.background picture-filename)
@@ -196,25 +216,36 @@ then
     # Select new index
     make_selection "${CURRENT}"
 
-    # Set DBUS session
-    set_dbus_session mate-session
-
     # Image loading
     gsettings set org.mate.background picture-filename "${LIST[${TRYSEL}]}"
 
 elif [ "${DESKTOP}" == 'XFCE' ]
 then
 
-    # Fetch current wallpaper
-    CURRENT=$(xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorLVDS/workspace0/last-image)
-
-    # Select new index
-    make_selection "${CURRENT}"
-
     # Set DBUS session
     set_dbus_session xfce4-session
 
-    # Image loading
-    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorLVDS/workspace0/last-image -s "${LIST[${TRYSEL}]}"
+    # Get properties
+    XRES=($(xfconf-query --channel xfce4-desktop --list | grep last-image))
+
+    # Loop over properties
+    for this in "${XRES[@]}"
+    do
+        # Fetch current wallpaper
+        CURRENT=$(xfconf-query --channel xfce4-desktop --property "$this")
+
+        # Select new index
+        make_selection "${CURRENT}"
+
+        # Image loading
+        xfconf-query --channel xfce4-desktop --property "$this" --set "${LIST[${TRYSELF}]}"
+
+    done
+
+else
+
+    # Issue warning
+    echo "Unknown desktop environment ${DESKTOP}, failed to change wallpaper"
+    exit 5
 
 fi
