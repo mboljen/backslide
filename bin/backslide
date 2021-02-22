@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Created:         Di 2020-05-05 19:31:11 CEST
-# Last Modified:   Do 2021-02-18 01:23:53 CET
+# Last Modified:   Mo 2021-02-22 01:17:35 CET
 #
 # backslide:
 #   This script will change the current desktop wallpaper.
@@ -147,7 +147,7 @@ function make_selection {
         done
     fi
 
-    echo Next wallpaper = ${LIST[$TRYSEL]}
+    echo Selection: "${LIST[$TRYSEL]}"
 }
 
 # Set DBUS session (arg #1 is name of desktop session)
@@ -161,11 +161,11 @@ function set_dbus_session {
 }
 
 # Check if option for desktop environment is defined
-if [ -z ${DESKTOP} ]
+if [ -z "${DESKTOP}" ]
 then
 
     # Grep known desktops
-    if [ "${XDG_CURRENT_DESKTOP}" == 'GNOME' ] || [ "${XDG_CURRENT_DESKTOP}" == 'MATE' ] || [ '${XDG_CURRENT_DESKTOP}' == 'XFCE' ]
+    if [[ ${XDG_CURRENT_DESKTOP} =~ ^GNOME|MATE|XFCE$ ]]
     then
 
         # Looks like Gnome, Unity or Cinnamon
@@ -174,7 +174,7 @@ then
     else
 
         # Issue error message and display debugging info
-        echo "Failed to automatically determine desktop environment"
+        echo "Failed to auto-determine desktop environment"
         echo
         echo "XDG_CURRENT_DESKTOP = '${XDG_CURRENT_DESKTOP}'"
         echo "DESKTOP_SERSSION = '${DESKTOP_SESSION}'"
@@ -184,7 +184,6 @@ then
 
     fi
 fi
-
 
 # Check variable XDG_CURRENT_DESKTOP
 if [ "${DESKTOP}" == 'GNOME' ]
