@@ -1,6 +1,6 @@
 # backslide
 
-This bash script will change the current desktop wallpaper with a random selection from the given path.  The following desktop environments are supported: Gnome, Mate, and XFCE.
+This bash script will change the current desktop wallpaper with a random selection from the given path.  The following desktop environments are supported: [Gnome](https:://www.gnome.org/), [Mate](https://www.mate-desktop.org/), and [Xfce](https://www.xfce.org/).
 
 ## Installation
 
@@ -15,27 +15,27 @@ The default `PREFIX` is set to `/usr/local`.  In order to succesfully complete t
 
 ## Usage
 
-The following command will parse the folder `path` for image files and changes the current wallpaper.  Currenlty, JPG and PNG image files are supported.  From the list of wallpapers and the current wallpaper, the script will automatically select the next wallpaper from the list.  If the option `-r` is enabled, a random selection is made.  If the opton `-l` is enabled, the latest wallpaper is selected.
+The following command will parse the folder `path` for image files and changes the current wallpaper.  Currenlty, JPG and PNG image files are supported.  From the list of wallpapers and the current wallpaper, the script will automatically select the next wallpaper from the list.  If the option `-r` is enabled, a random wallpaper is selected.  If the opton `-l` is enabled, the wallpaper with the latest timestamp is selected.
 
 ```bash
-$ backslide [-d environment] [-R] [-r|-n] path...
+$ backslide [-d environment] [-R] [-r] [-l] [-q] path...
 ```
 
 ### Options
 
-+ `-d ENVIRONMENT`
++ `-d environment`
 
-  Force setting of wallpaper for specified desktop environment.  If the user has a X session running the value will be automaticall deteceted.  The following desktop environments are supported:
+  Forces setting of wallpaper for specified desktop environment.  If the user has a X session running the value will be detected automatically.  The following desktop environments are supported:
 
-  - `GNOME`
-  - `MATE`
-  - `XFCE`
+  - `Gnome`
+  - `Mate`
+  - `Xfce`
 
-  This setting is mandatory if the script is invoked via a cronjob.
+  This setting is mandatory if the script is invoked via a `cron` job.
 
 + `-R`
 
-  Recurse into subfolders when parsing `path` for image files.
+  Recurses into subfolders when parsing `path` for image files.
 
 + `-r`
 
@@ -43,7 +43,11 @@ $ backslide [-d environment] [-R] [-r|-n] path...
 
 + `-l`
 
-  Select the latest file from the list of wallpaper files.
+  Selects the latest file from the list of wallpaper files.
+
++ `-q`
+
+  Quiet mode.
 
 + `-h`
 

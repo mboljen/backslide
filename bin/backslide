@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Created:         Di 2020-05-05 19:31:11 CEST
-# Last Modified:   So 2021-02-28 15:15:37 CET
+# Last Modified:   Mo 2021-03-01 23:44:50 CET
 #
 # backslide:
 #   This script will change the current desktop wallpaper.
@@ -191,7 +191,7 @@ then
 fi
 
 # Check variable XDG_CURRENT_DESKTOP
-if [ "${DESKTOP}" == 'GNOME' ]
+if echo "${DESKTOP}" | grep -iqF gnome
 then
 
     # Set DBUS session
@@ -208,7 +208,7 @@ then
     # Image loading
     gsettings set org.gnome.desktop.background picture-uri "file://${LIST[${TRYSEL}]}"
 
-elif [ "${DESKTOP}" == 'MATE' ]
+elif echo "${DESKTOP}" | grep -iqF mate
 then
 
     # Set DBUS session
@@ -223,7 +223,7 @@ then
     # Image loading
     gsettings set org.mate.background picture-filename "${LIST[${TRYSEL}]}"
 
-elif [ "${DESKTOP}" == 'XFCE' ]
+elif echo "${DESKTOP}" | grep -iqF xfce
 then
 
     # Set DBUS session
