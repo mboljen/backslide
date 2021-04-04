@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Created:         Di 2020-05-05 19:31:11 CEST
-# Last Modified:   Mo 2021-03-01 23:44:50 CET
+# Last Modified:   So 2021-04-04 23:36:03 CEST
 #
 # backslide:
 #   This script will change the current desktop wallpaper.
@@ -72,7 +72,10 @@ LIST=()
 # Loop over arguments
 for dir in "$@"
 do
-    # Check if current argument is valid directory
+    # Add current working directory unless argument is absolute path
+    [[ "$dir" != /* ]] && dir="$(pwd)/$dir"
+
+    # Check if variable holds a valid directory
     if [ ! -d "${dir}" ]
     then
         echo "Skipping ${dir}, not a valid directory"
