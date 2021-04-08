@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Created:         Di 2020-05-05 19:31:11 CEST
-# Last Modified:   So 2021-04-04 23:36:03 CEST
+# Last Modified:   Do 2021-04-08 13:14:44 CEST
 #
 # backslide:
 #   This script will change the current desktop wallpaper.
@@ -154,7 +154,7 @@ function make_selection {
         done
     fi
 
-    #
+    # Echo selected wallpaper
     [ "${QUIET}" -eq 0 ] && echo Selection: "${LIST[$TRYSEL]}"
 }
 
@@ -225,6 +225,8 @@ then
 
     # Fetch current wallpaper
     CURRENT=$(gsettings get org.mate.background picture-filename)
+    CURRENT=${CURRENT#"'"}
+    CURRENT=${CURRENT%"'"}
 
     # Select new index
     make_selection "${CURRENT}"
