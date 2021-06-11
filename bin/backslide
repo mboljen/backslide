@@ -86,11 +86,12 @@ do
     while IFS=  read -r -d $'\0'
     do
         LIST+=("$REPLY")
-    done < <( find "${dir}" ${MAXDEPTH} -type f \( -iname \*.jpg -o -iname \*.png \) -print0 )
+    done < <( find "${dir}" ${MAXDEPTH} -type f \( -iname \*.jpg -o \
+                                                   -iname \*.png \) -print0 | sort -z )
 
     # Search for JPG and PNG image files (bash v4.4 and later)
     # readarray -d '' LIST < <( find ${dir} $MAXDEPTH -type f \( -iname \*.jpg -o \
-    #                                                            -iname \*.png \) -print0 )
+    #                                                            -iname \*.png \) -print0 | sort -z )
 
 done
 
