@@ -1,8 +1,49 @@
-# backslide
+# NAME
 
-This bash script will change the current desktop wallpaper with a random selection from the given path.  The following desktop environments are supported: [Gnome](https:://www.gnome.org/), [Mate](https://www.mate-desktop.org/), and [Xfce](https://www.xfce.org/).
+backslide - Change the current desktop wallpaper with a selection from the given path.
 
-## Installation
+
+# SYNOPSIS
+
+**backslide** [**-d** _environment_] [**-R**] [**-r**] [**-l**] [**-q**] _path_...
+
+
+# DESCRIPTION
+
+**backslide** will parse the folder `path` for image files and changes the current wallpaper.  Currently, JPG and PNG image files are supported.  From the list of wallpapers and the current wallpaper, the script will automatically select the next wallpaper in the list.  If the option **-r** is enabled, a random wallpaper is selected.  If the option **-l** is enabled, the wallpaper with the latest timestamp is selected.
+
+
+# OPTIONS
+
+**-d** _environment_
+: force setting of wallpaper for specified desktop environment.  If the user has a X session running the value will be detected automatically.  If **backslide** is invoked via a cronjob, this setting is mandatory.  The following settings are supported: "gnome", "mate", and "xfce".
+
+**-R**
+: recurse into subfolders when parsing `path` for image files.
+
+**-r**
+: select a random image file from the list of wallpaper files.
+
+**-l**
+
+: select the latest file from the list of wallpaper files.
+
+**-q**
+: enable quiet mode.
+
+
+**-h**
+: show this help message.
+
+
+# INSTALLATION
+
+Clone the remote repository and change into the local repository:
+
+```bash
+$ git clone https://github.com/mboljen/backslide
+$ cd backslide
+```
 
 Use the following command to install this software:
 
@@ -13,52 +54,33 @@ $ make install
 
 The default `PREFIX` is set to `/usr/local`.  In order to successfully complete the installation, you need to have write permissions for the installation location.
 
-## Usage
 
-The following command will parse the folder `path` for image files and changes the current wallpaper.  Currenlty, JPG and PNG image files are supported.  From the list of wallpapers and the current wallpaper, the script will automatically select the next wallpaper from the list.  If the option `-r` is enabled, a random wallpaper is selected.  If the opton `-l` is enabled, the wallpaper with the latest timestamp is selected.
+# EXIT STATUS
 
-```bash
-$ backslide [-d environment] [-R] [-r] [-l] [-q] path...
-```
+[0]: Successful operation.
+[1]: Command line error
+[2]: Options **-r** and **-l** are mutually exclusive
+[3]: No images found
+[4]: Failed to resolve PID of user, probably not logged in
+[5]: Failed to auto-determine desktop environment
+[6]: Unknown desktop environment
 
-### Options
 
-+ `-d environment`
 
-  Forces setting of wallpaper for specified desktop environment.  If the user has a X session running the value will be detected automatically.  The following desktop environments are supported:
+# CONTRIBUTION
 
-  - `Gnome`
-  - `Mate`
-  - `Xfce`
+Pull requests are welcome.  For major changes, please open an issue first to discuss what you would like to change.
 
-  This setting is mandatory if the script is invoked via a `cron` job.
-
-+ `-R`
-
-  Recurses into subfolders when parsing `path` for image files.
-
-+ `-r`
-
-  Selects a random image file from the list of wallpaper files.
-
-+ `-l`
-
-  Selects the latest file from the list of wallpaper files.
-
-+ `-q`
-
-  Quiet mode.
-
-+ `-h`
-
-  Shows this help message.
-
-## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+Submit bug reports online at: <https://github.com/mboljen/backslide/issues>
 
 Please make sure to update tests as appropriate.
 
-## License
+
+# SEE ALSO
+
+Full documentation and sources at: <https://github.com/mboljen/backslide>
+
+
+# LICENSE
 
 [MIT](https://choosealicense.com/licenses/mit/)
