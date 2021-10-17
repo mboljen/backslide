@@ -55,13 +55,26 @@ The default `PREFIX` is set to `/usr/local`.  In order to successfully complete 
 
 # EXIT STATUS
 
-[0]: Successful operation.
-[1]: Command line error
-[2]: Options **-r** and **-l** are mutually exclusive
-[3]: No images found
-[4]: Failed to resolve PID of user, probably not logged in
-[5]: Failed to auto-determine desktop environment
-[6]: Unknown desktop environment
+0
+: Successful operation
+
+1
+: Command line interface error
+
+2
+: Options **-r** and **-l** are mutually exclusive
+
+3
+: No images found
+
+4
+: Failed to resolve PID of desktop environment, user probably not logged in
+
+5
+: Failed to auto-determine desktop environment
+
+6
+: Unknown desktop environment
 
 
 
