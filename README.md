@@ -25,12 +25,10 @@ backslide - Change the current desktop wallpaper with a selection from the given
 : select a random image file from the list of wallpaper files.
 
 **-l**
-
 : select the latest file from the list of wallpaper files.
 
 **-q**
 : enable quiet mode.
-
 
 **-h**
 : show this help message.
