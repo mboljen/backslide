@@ -10,7 +10,7 @@ backslide - Change the current desktop wallpaper with a selection from the given
 
 # DESCRIPTION
 
-**backslide** will parse the folder `path` for image files and changes the current wallpaper.  Currently, JPG and PNG image files are supported.  From the list of wallpapers and the current wallpaper, the script will automatically select the next wallpaper in the list.  If the option **-r** is enabled, a random wallpaper is selected.  If the option **-l** is enabled, the wallpaper with the latest timestamp is selected.
+**backslide** will parse the folder `path` for image files and changes the current wallpaper.  Currently, JPG and PNG image files are supported.  From the list of wallpapers and the current wallpaper, the script will automatically select the next wallpaper in the list.  If option **-r** is enabled, a random wallpaper is selected.  If option **-l** is enabled, the wallpaper with the latest timestamp is selected.
 
 
 # OPTIONS
@@ -51,31 +51,6 @@ $ make install
 ```
 
 The default `PREFIX` is set to `/usr/local`.  In order to successfully complete the installation, you need to have write permissions for the installation location.
-
-
-# EXIT STATUS
-
-0
-: Successful operation
-
-1
-: Command line interface error
-
-2
-: Options **-r** and **-l** are mutually exclusive
-
-3
-: No images found
-
-4
-: Failed to resolve PID of desktop environment, user probably not logged in
-
-5
-: Failed to auto-determine desktop environment
-
-6
-: Unknown desktop environment
-
 
 
 # CONTRIBUTION
