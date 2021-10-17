@@ -5,7 +5,7 @@ backslide - Change the current desktop wallpaper with a selection from the given
 
 # SYNOPSIS
 
-**backslide** [**-d** _environment_] [**-R**] [**-r**] [**-l**] [**-q**] _path_...
+**backslide** [ **-d** _environment_ ] [ **-R** ] [ **-r** ] [ **-l** ] [ **-q** ] _path_...
 
 
 # DESCRIPTION
