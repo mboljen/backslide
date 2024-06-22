@@ -1,11 +1,11 @@
 # backslide
 
-Change the current desktop wallpaper with a selection from the given path.
+Change the current desktop wallpaper with a selection from the given path
 
 
 ## Description
 
-**backslide** will parse the folder `path` for image files and change the current wallpaper.  Currently, JPEG and PNG files are supported.  From the list of wallpapers found and the current wallpaper, **backslide** will automatically select the next wallpaper in the list.  If option **-r** is enabled, a random wallpaper is selected.  If option **-l** is enabled, the wallpaper with the latest timestamp is selected.
+This script parses the folder `path` for image files and changes the current wallpaper.  Currently, only JPEG and PNG files are supported.  From the list of wallpapers found and the current wallpaper, **backslide** will automatically select the next wallpaper in the list.  If option **-r** is enabled, a random wallpaper is selected.  If option **-l** is enabled, the wallpaper with the latest timestamp is selected.
 
 
 ## Synopsis
