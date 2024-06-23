@@ -1,27 +1,24 @@
 #!/usr/bin/env bash
 #
 # Created:         Di 2020-05-05 19:31:11 CEST
-# Last Modified:   Do 2021-04-08 13:14:44 CEST
+# Last Modified:   Mo 2024-06-24 00:56:44 CEST
 #
 # backslide:
-#   This script will change the current desktop wallpaper.
+#   Change the current desktop wallpaper with a selection from the given path
 
 # Help text
 usage() {
 cat << EOF
+Change the current desktop wallpaper with a selection from the given path
 
-Usage: backslide [options] <folder>
+Usage: backslide [OPTION]... PATH...
 
-This script will change the current desktop wallpaper with
-a random selection from the given folder.
-
-OPTIONS:
-   -d TYPE  Force desktop environment [GNOME|MATE|XFCE]
-   -R       Recurse into subdirectories
-   -r       Selects a random wallpaper files
-   -l       Selects latest wallpaper file
-   -q       Quiet mode
-   -h       Show this message
+Options:
+  -d TYPE  Force desktop environment (options: gnome|mate|xfce)
+  -R       Recurse into subdirectories
+  -r       Select a random wallpaper file
+  -l       Select latest wallpaper file
+  -h       Show this help message
 EOF
 }
 
@@ -29,15 +26,14 @@ EOF
 DESKTOP=
 RND=0
 LATEST=0
-QUIET=0
 MAXDEPTH='-maxdepth 1'
 
 # Process options
-while getopts d:Rrlqh OPTION
+while getopts d:Rrlh OPTION
 do
-    case "${OPTION}"
+    case "$OPTION"
     in
-        d)  DESKTOP=${OPTARG}
+        d)  DESKTOP=$OPTARG
             ;;
         R)  MAXDEPTH=
             ;;
@@ -47,8 +43,6 @@ do
             ;;
         h)  usage
             exit 0
-            ;;
-        q)  QUIET=1
             ;;
         \?) usage
             exit 1
@@ -60,7 +54,7 @@ done
 shift $((OPTIND-1))
 
 #
-if [ "${RND}" -eq 1 ] && [ "${LATEST}" -eq 1 ]
+if [ "$RND" -eq 1 ] && [ "$LATEST" -eq 1 ]
 then
     echo "Random and latest selection are mutually exclusive"
     exit 2
@@ -76,9 +70,9 @@ do
     [[ "$dir" != /* ]] && dir="$(pwd)/$dir"
 
     # Check if variable holds a valid directory
-    if [ ! -d "${dir}" ]
+    if [ ! -d "$dir" ]
     then
-        echo "Skipping ${dir}, not a valid directory"
+        echo "Skipping $dir, not a valid directory"
         continue
     fi
 
@@ -86,8 +80,8 @@ do
     while IFS=  read -r -d $'\0'
     do
         LIST+=("$REPLY")
-    done < <( find "${dir}" ${MAXDEPTH} -type f \( -iname \*.jpg -o \
-                                                   -iname \*.png \) -print0 | sort -z )
+    done < <( find "$dir" $MAXDEPTH -type f \( -iname \*.jpg -o \
+                                               -iname \*.png \) -print0 | sort -z )
 
     # Search for JPG and PNG image files (bash v4.4 and later)
     # readarray -d '' LIST < <( find ${dir} $MAXDEPTH -type f \( -iname \*.jpg -o \
@@ -99,7 +93,7 @@ done
 COUNT=${#LIST[@]}
 
 # Exit if there are no images
-if [ "${COUNT}" -eq 0 ]
+if [ "$COUNT" -eq 0 ]
 then
     echo "No images found"
     exit 3
@@ -123,21 +117,21 @@ function make_selection {
     TRYSEL=$CURSEL
 
     # Check selection mode
-    if [ "${LATEST}" -eq 1 ]
+    if [ "$LATEST" -eq 1 ]
     then
 
         # Get latest image
         TRYTIME=0
         for i in "${!LIST[@]}"
         do
-            if [ $(stat -c %Y "${LIST[$i]}") -gt "${TRYTIME}" ]
+            if [ $(stat -c %Y "${LIST[$i]}") -gt "$TRYTIME" ]
             then
                 TRYSEL=$i
                 TRYTIME=$(stat -c %Y "${LIST[$i]}")
             fi
         done
 
-    elif [ "${RND}" -eq 0 ]
+    elif [ "$RND" -eq 0 ]
     then
 
         # Proceed to next image in list
@@ -145,18 +139,18 @@ function make_selection {
         [[ $TRYSEL -eq ${COUNT} ]] && TRYSEL=0
 
     # Random select if more than 1 item in list
-    elif [ "${COUNT}" -gt 1 ]
+    elif [ "$COUNT" -gt 1 ]
     then
 
         # Loop until new ID is found
-        while [ ${TRYSEL} -eq "${CURSEL}" ]
+        while [ $TRYSEL -eq "${CURSEL}" ]
         do
             TRYSEL=$(( RANDOM % COUNT ))
         done
     fi
 
     # Echo selected wallpaper
-    [ "${QUIET}" -eq 0 ] && echo Selection: "${LIST[$TRYSEL]}"
+    echo Selection: "${LIST[$TRYSEL]}"
 }
 
 # Set DBUS session (arg #1 is name of desktop session)
@@ -164,7 +158,7 @@ function set_dbus_session {
 
     # Argument #1 is name of session to look for
     PID=$(pgrep "$1" -u $UID | tail -n1)
-    if [ -n "${PID}" ]
+    if [ -n "$PID" ]
     then
         DBUS_SESSION_BUS_ADDRESS=$(grep -z DBUS_SESSION_BUS_ADDRESS /proc/"$PID"/environ | tr -d '\0' | cut -d= -f2-)
         export DBUS_SESSION_BUS_ADDRESS
@@ -176,24 +170,24 @@ function set_dbus_session {
 }
 
 # Check if option for desktop environment is defined
-if [ -z "${DESKTOP}" ]
+if [ -z "$DESKTOP" ]
 then
 
     # Grep known desktops
-    if [[ ${XDG_CURRENT_DESKTOP} =~ ^GNOME|MATE|XFCE$ ]]
+    if [[ $XDG_CURRENT_DESKTOP =~ ^gnome|mate|xfce$ ]]
     then
 
         # Looks like Gnome, Unity or Cinnamon
-        DESKTOP="${XDG_CURRENT_DESKTOP}"
+        DESKTOP="$XDG_CURRENT_DESKTOP"
 
     else
 
         # Issue error message and display debugging info
         echo "Failed to auto-determine desktop environment"
         echo
-        echo "XDG_CURRENT_DESKTOP = '${XDG_CURRENT_DESKTOP}'"
-        echo "DESKTOP_SERSSION = '${DESKTOP_SESSION}'"
-        echo "MENU_PREFIX = '${XDG_MENU_PREFIX}'"
+        echo "XDG_CURRENT_DESKTOP = '$XDG_CURRENT_DESKTOP'"
+        echo "DESKTOP_SERSSION = '$DESKTOP_SESSION'"
+        echo "MENU_PREFIX = '$XDG_MENU_PREFIX'"
 
         exit 5
 
@@ -201,7 +195,7 @@ then
 fi
 
 # Check variable XDG_CURRENT_DESKTOP
-if echo "${DESKTOP}" | grep -iqF gnome
+if echo "$DESKTOP" | grep -iqF gnome
 then
 
     # Set DBUS session
@@ -213,7 +207,7 @@ then
     CURRENT=${CURRENT%"'"}
 
     # Set new index
-    make_selection "${CURRENT}"
+    make_selection "$CURRENT"
 
     # Image loading
     gsettings set org.gnome.desktop.background picture-uri "file://${LIST[${TRYSEL}]}"
@@ -230,7 +224,7 @@ then
     CURRENT=${CURRENT%"'"}
 
     # Select new index
-    make_selection "${CURRENT}"
+    make_selection "$CURRENT"
 
     # Image loading
     gsettings set org.mate.background picture-filename "${LIST[${TRYSEL}]}"
@@ -251,7 +245,7 @@ then
         CURRENT=$(xfconf-query --channel xfce4-desktop --property "$this")
 
         # Select new index
-        make_selection "${CURRENT}"
+        make_selection "$CURRENT"
 
         # Image loading
         xfconf-query --channel xfce4-desktop --property "$this" --set "${LIST[${TRYSELF}]}"
@@ -261,7 +255,7 @@ then
 else
 
     # Issue warning
-    echo "Unknown desktop environment ${DESKTOP}, failed to change wallpaper"
+    echo "Unknown desktop environment '$DESKTOP', failed to change wallpaper"
     exit 6
 
 fi
