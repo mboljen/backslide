@@ -32,7 +32,7 @@ man:
 	mkdir -p $(MAN_DIR)
 
 $(MAN): man
-	help2man --name=$(NAME) \
+	help2man --name="$(shell bin/$(NAME) -h 2>&1 | head -n 1)" \
 		 --no-discard-stderr \
 		 --help-option=-h \
 		 --version-string=$(VERSION) \
