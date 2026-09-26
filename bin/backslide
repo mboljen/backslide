@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Created:         Di 2020-05-05 19:31:11 CEST
-# Last Modified:   Mo 2024-06-24 00:56:44 CEST
+# Last Modified:   Sa 2026-09-26 15:28:45 CEST
 #
 # backslide:
 #   Change the current desktop wallpaper with a selection from the given path
@@ -174,7 +174,7 @@ if [ -z "$DESKTOP" ]
 then
 
     # Grep known desktops
-    if [[ $XDG_CURRENT_DESKTOP =~ ^gnome|mate|xfce$ ]]
+    if [[ ${XDG_CURRENT_DESKTOP,,} =~ ^gnome|mate|xfce$ ]]
     then
 
         # Looks like Gnome, Unity or Cinnamon
@@ -211,6 +211,7 @@ then
 
     # Image loading
     gsettings set org.gnome.desktop.background picture-uri "file://${LIST[${TRYSEL}]}"
+    gsettings set org.gnome.desktop.background picture-options "zoom"
 
 elif echo "${DESKTOP}" | grep -iqF mate
 then
@@ -228,6 +229,7 @@ then
 
     # Image loading
     gsettings set org.mate.background picture-filename "${LIST[${TRYSEL}]}"
+    gsettings set org.mate.background picture-options "zoom"
 
 elif echo "${DESKTOP}" | grep -iqF xfce
 then
@@ -235,20 +237,27 @@ then
     # Set DBUS session
     set_dbus_session xfce4-session
 
-    # Get properties
-    XRES=($(xfconf-query --channel xfce4-desktop --list | grep last-image))
+    # Get image resource property
+    XRES=($(xfconf-query --channel xfce4-desktop --property /backdrop --list | grep "^/backdrop/screen[[:digit:]]/monitor.\+/workspace[[:digit:]]/last-image"))
 
     # Loop over properties
     for this in "${XRES[@]}"
     do
+
         # Fetch current wallpaper
         CURRENT=$(xfconf-query --channel xfce4-desktop --property "$this")
 
         # Select new index
         make_selection "$CURRENT"
 
-        # Image loading
-        xfconf-query --channel xfce4-desktop --property "$this" --set "${LIST[${TRYSELF}]}"
+        # Load new image
+        xfconf-query --channel xfce4-desktop --property "$this" --set "${LIST[${TRYSEL}]}"
+
+        # Remove suffix "last-image" from variable
+        thisbase="${this%/last-image}"
+
+        # Set image style (0:none, 1:centered, 2:tiled, 3:stretched, 4:scaled, 5:zoomed, 6:spanning-screens)
+        xfconf-query --channel xfce4-desktop --property "$thisbase/image-style" --create --type "int" --set "5"
 
     done
 
